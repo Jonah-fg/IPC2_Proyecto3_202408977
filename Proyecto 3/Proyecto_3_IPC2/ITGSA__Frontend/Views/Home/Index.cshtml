@@ -1,8 +1,30 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "ITGSA - Sistema de Gestión";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>ITGSA - Facturación y Pagos</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <div style="color: green; margin: 10px 0;">
+        @ViewBag.Mensaje
+    </div>
+}
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div style="color: red; margin: 10px 0;">
+        @ViewBag.Error
+    </div>
+}
+
+<form asp-action="ResetearDatos" method="post">
+    <button type="submit" style="background-color: red; color: white; padding: 8px 16px;">
+        Resetear Datos
+    </button>
+</form>
+
+<hr />
+<h3>Respuesta del API (XML):</h3>
+<pre style="background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc;">
+    @ViewBag.RespuestaXml
+</pre>

@@ -3,6 +3,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+string datosPath = Path.Combine(Directory.GetCurrentDirectory(), "Datos");
+if (!Directory.Exists(datosPath))
+    Directory.CreateDirectory(datosPath);
+
+// Cliente HTTP para consumir la API
+builder.Services.AddHttpClient("ClienteAPI", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5101"); // ← PUERTO REAL DE TU API (mira abajo)
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/xml"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

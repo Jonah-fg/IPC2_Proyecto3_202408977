@@ -6,20 +6,71 @@ namespace ITGSA__Frontend.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public HomeController(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory =httpClientFactory;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+
+        [HttpPost]
+        public async Task<IActionResult> ResetearDatos()
+        {
+            try
+            {
+                HttpClient cliente=_httpClientFactory.CreateClient("ClienteAPI");
+                HttpResponseMessage respuesta =await cliente.PostAsync("/api/Reinicio", null);
+                if (respuesta.IsSuccessStatusCode)
+                {
+                    string contenido =await respuesta.Content.ReadAsStringAsync();
+                    ViewBag.Mensaje ="Datos reiniciados correctamente";
+                    ViewBag.RespuestaXml=contenido;
+                }
+                else
+                {
+                    ViewBag.Error="Error al reiniciar datos";
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error =$"Error de conexión: {ex.Message}";
+            }
+            return View("Index");
+        }
+
+        public IActionResult CargarConfiguracion()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public async Task<IActionResult> CargarConfiguracion(IFormFile archivoXml)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (archivoXml ==null || archivoXml.Length== 0)
+            {
+                ViewBag.Error="Debe seleccionar un archivo config.xml";
+                return View();
+            }
+
+            HttpClient cliente =_httpClientFactory.CreateClient("ClienteAPI");
+            using (MultipartFormDataContent contenido=new MultipartFormDataContent())
+            {
+                Stream streamArchivo = archivoXml.OpenReadStream();
+                StreamContent contenidoArchivo = new StreamContent(streamArchivo);
+                contenido.Add(contenidoArchivo, "archivo", archivoXml.FileName);
+
+                HttpResponseMessage respuesta=await cliente.PostAsync("/api/Configuracion/cargar", contenido);
+                string xmlRespuesta =await respuesta.Content.ReadAsStringAsync();
+                ViewBag.RespuestaXml = xmlRespuesta;
+            }
+
+            return View();
         }
     }
 }
