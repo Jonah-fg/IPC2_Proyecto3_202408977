@@ -3,10 +3,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-string datosPath = Path.Combine(Directory.GetCurrentDirectory(), "Datos");
-if (!Directory.Exists(datosPath))
-    Directory.CreateDirectory(datosPath);
-
 // Cliente HTTP para consumir la API
 builder.Services.AddHttpClient("ClienteAPI", client =>
 {

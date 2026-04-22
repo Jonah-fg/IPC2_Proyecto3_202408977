@@ -7,7 +7,6 @@ namespace ITGSA__API.Servicios
 
         public ResultadoAplicacionPago AplicarPago(string nitCliente, decimal montoPago, List<Factura> facturas)
         {
-            // Crear el objeto resultado
             ResultadoAplicacionPago resultado = new ResultadoAplicacionPago();
 
             // Obtener facturas no pagadas del cliente, ordenadas por fecha (más antigua primero)
@@ -31,7 +30,6 @@ namespace ITGSA__API.Servicios
                 decimal pendiente=factura.SaldoPendiente;
                 if (montoRestante >=pendiente)
                 {
-                    // Paga la factura completa
                     montoRestante -=pendiente;
                     factura.SaldoPendiente= 0;
                     factura.Pagada= true;
@@ -39,8 +37,7 @@ namespace ITGSA__API.Servicios
                 }
                 else
                 {
-                    // Abono parcial
-                    factura.SaldoPendiente -= montoRestante;
+                    factura.SaldoPendiente -=montoRestante;
                     montoRestante = 0;
                     resultado.FacturasAfectadas.Add(factura);
                 }
