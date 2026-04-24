@@ -44,6 +44,35 @@ namespace ITGSA__Frontend.Controllers
             return View("Index");
         }
 
+        public IActionResult CargarTransacciones()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CargarTransacciones(IFormFile archivoXml)
+        {
+            if (archivoXml ==null || archivoXml.Length==0)
+            {
+                ViewBag.Error ="Debe selecionar un archivo transac.xml";
+                return View();
+            }
+
+            HttpClient cliente= _httpClientFactory.CreateClient("ClienteAPI");
+            using (var contenido =new MultipartFormDataContent())
+            {
+                var streamArchivo=archivoXml.OpenReadStream();
+                var contenidoArchivo =new StreamContent(streamArchivo);
+                contenido.Add(contenidoArchivo, "archivo", archivoXml.FileName);
+
+                HttpResponseMessage respuesta = await cliente.PostAsync("/api/Transacciones/cargar", contenido);
+                string xmlRespuesta =await respuesta.Content.ReadAsStringAsync();
+                ViewBag.RespuestaXml=xmlRespuesta;
+            }
+            return View();
+        }
+
+
         public IActionResult CargarConfiguracion()
         {
             return View();

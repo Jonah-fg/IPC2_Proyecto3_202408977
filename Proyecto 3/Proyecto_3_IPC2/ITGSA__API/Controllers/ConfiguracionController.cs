@@ -1,5 +1,6 @@
 ﻿using ITGSA.API.Services;
 using ITGSA__API.Modelos;
+using ITGSA__API.Respuestas;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml;
 
@@ -69,7 +70,7 @@ namespace ITGSA__API.Controllers
                     foreach (XmlNode nodo in nodosBancos)
                     {
                         string codigo= nodo.SelectSingleNode("codigo")?.InnerText ?? "";
-                        string nombre= nodo.SelectSingleNode("nombre")?.InnerText ?? "";
+                        string nombre=nodo.SelectSingleNode("nombre")?.InnerText ?? "";
                         if (codigo=="") 
                             continue;
 
@@ -90,12 +91,19 @@ namespace ITGSA__API.Controllers
                 _almacenamiento.GuardarClientes(clientes);
                 _almacenamiento.GuardarBancos(bancos);
 
-                string respuesta = $@"<respuesta> <clientesAgregados>{clientesAgreg}</clientesAgregados> <clientesActualizados>{clientesAct}</clientesActualizados> <bancosAgregados>{bancosAgreg}</bancosAgregados> <bancosActualizados>{bancosAct}</bancosActualizados> </respuesta>";
-                return Content(respuesta, "application/xml");
+                string xmlRespuesta=$@"<?xml version=""1.0""?>
+<respuesta>
+  <clientesAgregados>{clientesAgreg}</clientesAgregados>
+  <clientesActualizados>{clientesAct}</clientesActualizados>
+  <bancosAgregados>{bancosAgreg}</bancosAgregados>
+  <bancosActualizados>{bancosAct}</bancosActualizados>
+</respuesta>";
+
+                return Content(xmlRespuesta, "application/xml");
             }
             catch (Exception ex)
             {
-                return BadRequest($"<error>{ex.Message}</error>");
+                return BadRequest(new RespuestaError { mensaje =ex.Message });
             }
         }
     }

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config>
+	<clientes>
+		<cliente>
+			<nit>123456-7</nit>
+			<nombre>Cliente Uno</nombre>
+			<direccion>Ciudad</direccion>
+		</cliente>
+		<cliente>
+			<nit>987654-3</nit>
+			<nombre>Cliente Dos</nombre>
+			<direccion>Otra Ciudad</direccion>
+		</cliente>
+	</clientes>
+	<bancos>
+		<banco>
+			<codigo>001</codigo>
+			<nombre>Banco Industrial</nombre>
+		</banco>
+		<banco>
+			<codigo>002</codigo>
+			<nombre>Banco BI</nombre>
+		</banco>
+	</bancos>
+</config>

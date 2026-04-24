@@ -19,12 +19,12 @@ public class ConsultasController : ControllerBase
     public IActionResult EstadoCuenta(string nit)
     {
         List<Cliente> clientes=_almacenamiento.CargarClientes();
-        List<Factura> facturas =_almacenamiento.CargarFacturas();
+        List<Factura> facturas=_almacenamiento.CargarFacturas();
         List<Pago> pagos=_almacenamiento.CargarPagos();
 
         if (!string.IsNullOrEmpty(nit))
         {
-            Cliente clien =clientes.Find(x => x.Nit == nit);
+            Cliente clien =clientes.Find(x =>x.Nit == nit);
             if (clien==null) 
                 return NotFound("<error>Cliente no existe</error>");
 
@@ -34,7 +34,7 @@ public class ConsultasController : ControllerBase
         else
         {
             List<Cliente> ordenados=clientes.OrderBy(c =>c.Nit).ToList();
-            StringBuilder sb= new StringBuilder();
+            StringBuilder sb=new StringBuilder();
             sb.AppendLine("<estadosCuenta>");
             foreach (Cliente clien in ordenados)
             {
@@ -48,12 +48,12 @@ public class ConsultasController : ControllerBase
     private string GenerarXmlCliente(Cliente clien, List<Factura> facturas, List<Pago> pagos)
     {
         List<Transaccion> transacciones =new List<Transaccion>();
-        foreach (Factura fac in facturas.Where(f => f.NitCliente == clien.Nit))
+        foreach (Factura fac in facturas.Where(f =>f.NitCliente == clien.Nit))
         {
             transacciones.Add(new Transaccion { Fecha =fac.Fecha, Cargo= fac.Monto, Abono=0, Descripcion = $"Factura #{fac.NumeroFactura}" });
         }
 
-        foreach (Pago p in pagos.Where(p => p.NitCliente==clien.Nit))
+        foreach (Pago p in pagos.Where(p =>p.NitCliente==clien.Nit))
         {
             transacciones.Add(new Transaccion { Fecha=p.Fecha, Cargo= 0, Abono=p.Monto, Descripcion =$"Pago {p.Referencia}" });
         }
@@ -64,7 +64,7 @@ public class ConsultasController : ControllerBase
         sb.AppendLine("  <transacciones>");
         foreach (Transaccion trans in transacciones)
         {
-            sb.AppendLine($"    <transaccion fecha=\"{trans.Fecha:yyyy-MM-dd}\" cargo=\"{trans.Cargo:F2}\" abono=\"{trans.Abono:F2}\" descripcion=\"{trans.Descripcion}\"/>");
+            sb.AppendLine($"   <transaccion fecha=\"{trans.Fecha:yyyy-MM-dd}\" cargo=\"{trans.Cargo:F2}\" abono=\"{trans.Abono:F2}\" descripcion=\"{trans.Descripcion}\"/>");
         }
         sb.AppendLine("  </transacciones>");
         sb.AppendLine("</cliente>");
@@ -82,8 +82,8 @@ public class ConsultasController : ControllerBase
             decimal total =0;
             foreach (Pago p in pagos)
             {
-                if (p.Fecha.Year == fecha.Year && p.Fecha.Month== fecha.Month)
-                    total += p.Monto;
+                if (p.Fecha.Year== fecha.Year && p.Fecha.Month== fecha.Month)
+                    total+= p.Monto;
             }
             resultado.Add($"<mes nombre=\"{fecha:MMMM/yyyy}\" total=\"{total:F2}\"/>");
         }

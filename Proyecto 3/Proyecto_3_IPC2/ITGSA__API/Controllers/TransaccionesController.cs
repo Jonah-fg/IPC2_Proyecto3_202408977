@@ -16,129 +16,152 @@ namespace ITGSA__API.Controllers
         public TransaccionesController(AlmacenamientoXml almacenamiento, AplicadorPagos aplicadorPagos)
         {
             _almacenamiento =almacenamiento;
-            _aplicadorPagos=aplicadorPagos;
+            _aplicadorPagos =aplicadorPagos;
         }
 
         [HttpPost("cargar")]
         public IActionResult CargarTransacciones(IFormFile archivo)
         {
-            if (archivo ==null || archivo.Length==0)
+            if (archivo == null || archivo.Length== 0)
                 return BadRequest("<error>Archivo vacío</error>");
 
             try
             {
-                XmlDocument doc =new XmlDocument();
+                List<Cliente> clientes= _almacenamiento.CargarClientes();
+                List<Banco> bancos= _almacenamiento.CargarBancos();
+                List<Factura> facturas= _almacenamiento.CargarFacturas();
+                List<Pago> pagos=_almacenamiento.CargarPagos();
+
+                int nuevasFacturas=0;
+                int facturasDuplicadas = 0;
+                int facturasConError =0;
+                int nuevosPagos = 0;
+                int pagosDuplicados =0;
+                int pagosConError=0;
+
+                XmlDocument doc=new XmlDocument();
                 doc.Load(archivo.OpenReadStream());
 
-                List<Cliente> clientes =_almacenamiento.CargarClientes();
-                List<Factura> facturas =_almacenamiento.CargarFacturas();
-                List<Pago> pagos = _almacenamiento.CargarPagos();
-                int facturasProc =0;
-                int pagosProc=0;
-
-                // Facturas
-                XmlNodeList facturasNode= doc.SelectNodes("/transacciones/facturas/factura");
-                if (facturasNode != null)
+                // facturas
+                XmlNodeList nodosFacturas= doc.SelectNodes("/transacciones/facturas/factura");
+                if (nodosFacturas != null)
                 {
-                    foreach (XmlNode nodo in facturasNode)
+                    foreach (XmlNode nodo in nodosFacturas)
                     {
-                        string nit= nodo.SelectSingleNode("nitCliente")?.InnerText ?? "";
-                        string numStr=nodo.SelectSingleNode("numeroFactura")?.InnerText ?? "";
-                        string fechaStr= nodo.SelectSingleNode("fecha")?.InnerText ?? "";
-                        string montoStr= nodo.SelectSingleNode("monto")?.InnerText ?? "";
+                        string numeroFactura =nodo.SelectSingleNode("numeroFactura")?.InnerText ?? "";
+                        string nitCliente =nodo.SelectSingleNode("NITcliente")?.InnerText ?? "";
+                        string fechaStr=nodo.SelectSingleNode("fecha")?.InnerText ?? "";
+                        string valorStr=nodo.SelectSingleNode("valor")?.InnerText ?? "";
 
-                        if (nit ==""|| numStr=="")
-                            continue;
-
-                        int numero =int.Parse(numStr);
-                        DateTime fecha= DateTime.Parse(fechaStr);
-                        decimal monto=decimal.Parse(montoStr);
-
-                        bool yaExiste=facturas.Exists(f => f.NumeroFactura == numero); 
-                        if (yaExiste)
-                            continue;
-
-                        Cliente cliente= clientes.Find(c => c.Nit==nit);
-                        if (cliente==null) 
-                            continue;
-
-                        Factura facturaNueva =new Factura{NitCliente= nit, NumeroFactura=numero, Fecha= fecha, Monto =monto, SaldoPendiente=monto,  Pagada =false};
-
-                        // Aplicar saldo a favor (si tiene)
-                        if (cliente.SaldoFavor>0)
+                         if (string.IsNullOrEmpty(numeroFactura) || string.IsNullOrEmpty(nitCliente) ||  string.IsNullOrEmpty(fechaStr) || string.IsNullOrEmpty(valorStr))
                         {
-                            if (cliente.SaldoFavor>= monto)
-                            {
-                                facturaNueva.SaldoPendiente=0;
-                                facturaNueva.Pagada =true;
-                                cliente.SaldoFavor  -=monto;
-                            }
-                            else
-                            {
-                                facturaNueva.SaldoPendiente= monto-cliente.SaldoFavor;
-                                cliente.SaldoFavor =0;
-                            }
+                            facturasConError++;
+                            continue;
+                        } 
+
+                        if (!clientes.Any(c =>c.Nit==nitCliente))
+                        {
+                            facturasConError++;
+                            continue;
                         }
-                        facturas.Add(facturaNueva);
-                        facturasProc++;
+
+                        DateTime fecha;
+                        decimal monto;
+                        try
+                        {
+                            fecha=DateTime.ParseExact(fechaStr, "dd/MM/yyyy", null);
+                            monto= decimal.Parse(valorStr);
+                        }
+                        catch
+                        {
+                            facturasConError++;
+                            continue;
+                        }
+
+                        if (facturas.Any(f => f.NumeroFactura==numeroFactura))
+                        {
+                            facturasDuplicadas++;
+                            continue;
+                        }
+
+                        Factura nueva= new Factura{NumeroFactura= numeroFactura, NitCliente = nitCliente, Fecha = fecha, Monto =monto, SaldoPendiente=monto, Pagada =false};
+                        facturas.Add(nueva);
+                        nuevasFacturas++;
                     }
                 }
 
                 // Pagos
-                XmlNodeList pagosNode =doc.SelectNodes("/transacciones/pagos/pago");
-                if (pagosNode !=null)
+                XmlNodeList nodosPagos =doc.SelectNodes("/transacciones/pagos/pago");
+                if (nodosPagos!= null)
                 {
-                    foreach (XmlNode nodo in pagosNode)
+                    foreach (XmlNode nodo in nodosPagos)
                     {
-                        string nit =nodo.SelectSingleNode("nitCliente")?.InnerText ?? "";
+                        string codigoBanco =nodo.SelectSingleNode("codigoBanco")?.InnerText?? "";
                         string fechaStr=nodo.SelectSingleNode("fecha")?.InnerText ?? "";
-                        string montoStr=nodo.SelectSingleNode("monto")?.InnerText ?? "";
-                        string refe =nodo.SelectSingleNode("referencia")?.InnerText ?? "";
+                        string nitCliente = nodo.SelectSingleNode("NITcliente")?.InnerText ?? "";
+                        string valorStr = nodo.SelectSingleNode("valor")?.InnerText?? "";
 
-                        if (nit == "" || montoStr == "") 
-                            continue;
-
-                        decimal monto =decimal.Parse(montoStr);
-                        DateTime fecha= DateTime.Parse(fechaStr);
-
-                        Cliente cliente =clientes.Find(c => c.Nit == nit);
-                        if (cliente ==null) 
-                            continue;
-
-                        var facturasCliente =facturas.Where(f => f.NitCliente == nit && !f.Pagada).OrderBy(f => f.Fecha).ToList();
-                        decimal resto =monto;
-                        foreach (Factura fac in facturasCliente)
+                        if (string.IsNullOrEmpty(codigoBanco) || string.IsNullOrEmpty(nitCliente) || string.IsNullOrEmpty(fechaStr) || string.IsNullOrEmpty(valorStr))
                         {
-                            if (resto<= 0) 
-                                break;
-
-                            if (resto >= fac.SaldoPendiente)
-                            {
-                                resto -= fac.SaldoPendiente;
-                                fac.SaldoPendiente = 0;
-                                fac.Pagada = true;
-                            }
-                            else
-                            {
-                                fac.SaldoPendiente -= resto;
-                                resto = 0;
-                            }
+                            pagosConError++;
+                            continue;
                         }
-                        cliente.SaldoFavor+=resto;
 
-                        pagos.Add(new Pago { NitCliente = nit, Fecha = fecha, Monto = monto, Referencia = refe });
-                        pagosProc++;
+                        if (!clientes.Any(c => c.Nit==nitCliente) || !bancos.Any(b => b.Codigo == codigoBanco))
+                        {
+                            pagosConError++;
+                            continue;
+                        }
+
+                        DateTime fecha;
+                        decimal monto;
+                        try
+                        {
+                            fecha= DateTime.ParseExact(fechaStr, "dd/MM/yyyy", null);
+                            monto=decimal.Parse(valorStr);
+                        }
+                        catch
+                        {
+                            pagosConError++;
+                            continue;
+                        }
+
+                        bool duplicado=pagos.Any(p => p.NitCliente ==nitCliente && p.CodigoBanco == codigoBanco && p.Fecha==fecha && p.Monto== monto);
+                        if (duplicado)
+                        {
+                            pagosDuplicados++;
+                            continue;
+                        }
+
+                        Pago nuevoPago= new Pago {NitCliente=nitCliente, CodigoBanco=codigoBanco, Fecha = fecha, Monto =monto, Referencia= $"Pago {codigoBanco} {fecha:yyyyMMdd}"};
+                        pagos.Add(nuevoPago);
+                        nuevosPagos++;
+
+                        // Aplicar pago a facturas del cliente
+                        Cliente cliente=clientes.First(c => c.Nit==nitCliente);
+                        ResultadoAplicacionPago resultado= _aplicadorPagos.AplicarPago(nitCliente, monto, facturas);
+                        cliente.SaldoFavor += resultado.SaldoFavor;
                     }
                 }
                 _almacenamiento.GuardarClientes(clientes);
                 _almacenamiento.GuardarFacturas(facturas);
                 _almacenamiento.GuardarPagos(pagos);
 
-                string respuesta=$@"<respuesta>
-    <facturasProcesadas>{facturasProc}</facturasProcesadas>
-    <pagosProcesados>{pagosProc}</pagosProcesados>
-    </respuesta>";
-                return Content(respuesta, "application/xml");
+                string xmlRespuesta= $@"<?xml version=""1.0""?>
+<transacciones>
+  <facturas>
+    <nuevasFacturas>{nuevasFacturas}</nuevasFacturas>
+    <facturasDuplicadas>{facturasDuplicadas}</facturasDuplicadas>
+    <facturasConError>{facturasConError}</facturasConError>
+  </facturas>
+  <pagos>
+    <nuevosPagos>{nuevosPagos}</nuevosPagos>
+    <pagosDuplicados>{pagosDuplicados}</pagosDuplicados>
+    <pagosConError>{pagosConError}</pagosConError>
+  </pagos>
+</transacciones>";
+
+                return Content(xmlRespuesta, "application/xml");
             }
             catch (Exception ex)
             {

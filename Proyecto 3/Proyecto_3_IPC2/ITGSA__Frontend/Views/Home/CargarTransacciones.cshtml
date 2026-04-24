@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"]="Cargar Transacciones";
+}
+<h2>Cargar archivo de transaciones (transac.xml)</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div style="color: red;">@ViewBag.Error</div>
+}
+
+<form asp-action="CargarTransacciones" method="post" enctype="multipart/form-data">
+    <div>
+        <label>Archivo XML:</label>
+        <input type="file" name="archivoXml" accept=".xml" />
+    </div>
+    <button type="submit">Cargar</button>
+</form>
+
+@if (!string.IsNullOrEmpty(ViewBag.RespuestaXml))
+{
+    <h3>Respuesta del API:</h3>
+    <pre>@ViewBag.RespuestaXml</pre>
+}

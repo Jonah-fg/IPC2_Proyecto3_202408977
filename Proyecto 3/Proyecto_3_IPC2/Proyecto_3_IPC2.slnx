@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="config.xml" />
+    <File Path="transac.xml" />
+  </Folder>
   <Project Path="ITGSA__API/ITGSA__API.csproj" />
   <Project Path="ITGSA__Frontend/ITGSA__Frontend.csproj" />
 </Solution>

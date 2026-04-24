@@ -5,7 +5,7 @@ namespace ITGSA__API.Modelos
     public class Factura
     {
         public string NitCliente { get; set; }
-        public int NumeroFactura { get; set; }
+        public string NumeroFactura { get; set; }
         public DateTime Fecha { get; set; }
         public decimal Monto { get; set; }
         public decimal SaldoPendiente { get; set; }
@@ -14,7 +14,7 @@ namespace ITGSA__API.Modelos
         public Factura()
         {
             NitCliente=string.Empty;
-            NumeroFactura=0;
+            NumeroFactura=string.Empty;
             Fecha =DateTime.MinValue;  
             Monto=0;
             SaldoPendiente=0;
