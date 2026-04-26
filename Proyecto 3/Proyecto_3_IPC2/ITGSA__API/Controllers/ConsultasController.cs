@@ -16,7 +16,7 @@ public class ConsultasController : ControllerBase
     }
 
     [HttpGet("estadoCuenta")]
-    public IActionResult EstadoCuenta(string nit)
+    public IActionResult EstadoCuenta(string? nit)
     {
         List<Cliente> clientes=_almacenamiento.CargarClientes();
         List<Factura> facturas=_almacenamiento.CargarFacturas();

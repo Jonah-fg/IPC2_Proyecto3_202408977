@@ -1,6 +1,5 @@
 ﻿using ITGSA.API.Services;
 using ITGSA__API.Modelos;
-using ITGSA__API.Respuestas;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml;
 
@@ -103,7 +102,7 @@ namespace ITGSA__API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new RespuestaError { mensaje =ex.Message });
+                return BadRequest($"<error>{ex.Message}</error>");
             }
         }
     }

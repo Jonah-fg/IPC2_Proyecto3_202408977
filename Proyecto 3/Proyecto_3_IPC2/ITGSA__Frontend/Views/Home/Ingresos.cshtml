@@ -1,0 +1,67 @@
+﻿@model ITGSA__Frontend.Models.IngresosViewModel
+@{
+    ViewData["Title"]="Ingresos por Mes";
+}
+
+<h2>Consultar Ingresos</h2>
+
+<form method="get" asp-action="Ingresos" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Mes (1-12):</label>
+            <input name="mes" type="number" min="1" max="12" class="form-control" required />
+        </div>
+        <div class="col-md-3">
+            <label>Año:</label>
+            <input name="anio" type="number" min="2000" max="2100" class="form-control" required />
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button type="submit" class="btn btn-primary">Consultar</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Meses != null && Model.Meses.Any())
+{
+    <h3>Mes elegido: @Model.MesSeleccionado.ToString("MMMM/yyyy")</h3>
+    <canvas id="graficaIngresos" width="400" height="200"></canvas>
+}
+else
+{
+    <p>Seleccione un mes y año para ver la gráfica de ingresos de los últimos 3 meses.</p>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        @if (Model.Meses != null && Model.Meses.Any())
+        {
+            <text>
+            const ctx=document.getElementById('graficaIngresos').getContext('2d');
+            const labels =@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Meses.Select(m => m.Nombre)));
+            const datos =@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Meses.Select(m => m.Total)));
+
+            new Chart(ctx, {
+                type:'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label:'Ingresos (Q)',
+                        data: datos,
+                        backgroundColor:'rgba(75, 192, 192, 0.6)',
+                        borderColor:'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales:{
+                        y:{
+                            beginAtZero:true
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+    </script>
+}hg

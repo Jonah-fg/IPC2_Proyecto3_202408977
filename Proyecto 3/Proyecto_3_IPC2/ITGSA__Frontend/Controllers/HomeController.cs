@@ -1,5 +1,6 @@
 using ITGSA__Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml;
 using System.Diagnostics;
 
 namespace ITGSA__Frontend.Controllers
@@ -101,5 +102,100 @@ namespace ITGSA__Frontend.Controllers
 
             return View();
         }
+
+        // GET: EstadoCuenta
+        public async Task<IActionResult> EstadoCuenta(string nit = null)
+        {
+            HttpClient cliente= _httpClientFactory.CreateClient("ClienteAPI");
+            string url="/api/Consultas/estadoCuenta";
+            if (!string.IsNullOrEmpty(nit))
+                url +=$"?nit={nit}";
+
+            HttpResponseMessage respuesta = await cliente.GetAsync(url);
+            string xml= await respuesta.Content.ReadAsStringAsync();
+
+            List<EstadoCuentaViewModel> model=ParsearEstadoCuentaXml(xml);
+            return View(model);
+        }
+
+        private List<EstadoCuentaViewModel> ParsearEstadoCuentaXml(string xml)
+        {
+            XmlDocument doc =new XmlDocument();
+            doc.LoadXml(xml);
+            var resultado=new List<EstadoCuentaViewModel>();
+
+            XmlNodeList clientesNodes= doc.SelectNodes("/estadosCuenta/cliente");
+            if (clientesNodes ==null || clientesNodes.Count== 0)
+                clientesNodes= doc.SelectNodes("/cliente");
+
+            if (clientesNodes!= null)
+            {
+                foreach (XmlNode nodoCliente in clientesNodes)
+                {
+                    EstadoCuentaViewModel EstadoCuentaVm=new EstadoCuentaViewModel
+                    {
+                        Nit =nodoCliente.Attributes["nit"]?.Value,
+                        Nombre= nodoCliente.Attributes["nombre"]?.Value,
+                        SaldoActual=decimal.Parse(nodoCliente.Attributes["saldoActual"]?.Value ?? "0"),
+                        Transacciones =new List<TransaccionViewModel>()
+                    };
+
+                    XmlNodeList transNodes=nodoCliente.SelectNodes("transacciones/transaccion");
+                    if (transNodes!= null)
+                    {
+                        foreach (XmlNode t in transNodes)
+                        {
+                            EstadoCuentaVm.Transacciones.Add(new TransaccionViewModel
+                            {
+                                Fecha=DateTime.Parse(t.Attributes["fecha"]?.Value),
+                                Cargo =decimal.Parse(t.Attributes["cargo"]?.Value ?? "0"),
+                                Abono= decimal.Parse(t.Attributes["abono"]?.Value ?? "0"),
+                                Descripcion = t.Attributes["descripcion"]?.Value
+                            });
+                        }
+                    }
+                    resultado.Add(EstadoCuentaVm);
+                }
+            }
+            return resultado;
+        }
+
+
+        // GET: Ingresos
+        public async Task<IActionResult> Ingresos(int? mes, int? anio)
+        {
+            if (!mes.HasValue || !anio.HasValue)
+                return View(new IngresosViewModel());
+
+            HttpClient cliente=_httpClientFactory.CreateClient("ClienteAPI");
+            string url =$"/api/Consultas/ingresos?mes={mes}&anio={anio}";
+            HttpResponseMessage respuesta= await cliente.GetAsync(url);
+            string xml=await respuesta.Content.ReadAsStringAsync();
+
+            IngresosViewModel model =ParsearIngresosXml(xml);
+            model.MesSeleccionado=new DateTime(anio.Value, mes.Value, 1);
+            return View(model);
+        }
+
+        private IngresosViewModel ParsearIngresosXml(string xml)
+        {
+            XmlDocument doc =new XmlDocument();
+            doc.LoadXml(xml);
+            IngresosViewModel model= new IngresosViewModel { Meses = new List<MesIngreso>() };
+
+            XmlNodeList nodos = doc.SelectNodes("/ingresos/mes");
+            if (nodos != null)
+            {
+                foreach (XmlNode nodo in nodos)
+                {
+                    model.Meses.Add(new MesIngreso{Nombre=nodo.Attributes["nombre"]?.Value, Total=decimal.Parse(nodo.Attributes["total"]?.Value ?? "0")});
+                }
+            }
+            return model;
+        }
+
     }
+
 }
+
+
