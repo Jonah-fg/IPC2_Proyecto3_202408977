@@ -42,6 +42,8 @@ namespace ITGSA__Frontend.Controllers
             {
                 ViewBag.Error =$"Error de conexión: {ex.Message}";
             }
+            TempData.Remove("UltimaRespuestaConfig");
+            TempData.Remove("UltimaRespuestaTransac");
             return View("Index");
         }
 
