@@ -47,6 +47,11 @@ namespace ITGSA__Frontend.Controllers
 
         public IActionResult CargarTransacciones()
         {
+            if (TempData["UltimaRespuestaTransac"] is string respuesta)
+            {
+                ViewBag.RespuestaXml =respuesta;
+                TempData.Keep("UltimaRespuestaTransac"); 
+            }
             return View();
         }
 
@@ -66,8 +71,9 @@ namespace ITGSA__Frontend.Controllers
                 var contenidoArchivo =new StreamContent(streamArchivo);
                 contenido.Add(contenidoArchivo, "archivo", archivoXml.FileName);
 
-                HttpResponseMessage respuesta = await cliente.PostAsync("/api/Transacciones/cargar", contenido);
+                HttpResponseMessage respuesta =await cliente.PostAsync("/api/Transacciones/cargar", contenido);
                 string xmlRespuesta =await respuesta.Content.ReadAsStringAsync();
+                TempData["UltimaRespuestaTransac"] = xmlRespuesta;
                 ViewBag.RespuestaXml=xmlRespuesta;
             }
             return View();
@@ -76,8 +82,14 @@ namespace ITGSA__Frontend.Controllers
 
         public IActionResult CargarConfiguracion()
         {
+            if (TempData["UltimaRespuestaConfig"] is string respuesta)
+            {
+                ViewBag.RespuestaXml= respuesta;
+                TempData.Keep("UltimaRespuestaConfig");
+            }
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CargarConfiguracion(IFormFile archivoXml)
@@ -97,9 +109,9 @@ namespace ITGSA__Frontend.Controllers
 
                 HttpResponseMessage respuesta=await cliente.PostAsync("/api/Configuracion/cargar", contenido);
                 string xmlRespuesta =await respuesta.Content.ReadAsStringAsync();
+                TempData["UltimaRespuestaConfig"] = xmlRespuesta;
                 ViewBag.RespuestaXml = xmlRespuesta;
             }
-
             return View();
         }
 
@@ -192,6 +204,11 @@ namespace ITGSA__Frontend.Controllers
                 }
             }
             return model;
+        }
+
+        public IActionResult Ayuda()
+        {
+            return View();
         }
 
     }

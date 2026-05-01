@@ -41,11 +41,11 @@ namespace ITGSA__API.Controllers
                 {
                     foreach (XmlNode nodo in nodosClientes)
                     {
-                        string nit =nodo.SelectSingleNode("nit")?.InnerText ?? "";
-                        string nombre= nodo.SelectSingleNode("nombre")?.InnerText ?? "";
+                        string nit = nodo.SelectSingleNode("NIT")?.InnerText ?? nodo.SelectSingleNode("nit")?.InnerText ?? "";
+                        string nombre = nodo.SelectSingleNode("nombre")?.InnerText ?? "";
                         string direccion = nodo.SelectSingleNode("direccion")?.InnerText ?? "";
-                        if (nit=="") 
-                            continue;
+                        if (string.IsNullOrEmpty(nit)) 
+                            continue; 
 
                         Cliente clienteExiste= clientes.Find(c => c.Nit == nit);
                         if (clienteExiste !=null)
@@ -90,14 +90,17 @@ namespace ITGSA__API.Controllers
                 _almacenamiento.GuardarClientes(clientes);
                 _almacenamiento.GuardarBancos(bancos);
 
-                string xmlRespuesta=$@"<?xml version=""1.0""?>
+                string xmlRespuesta= $@"<?xml version=""1.0""?>
 <respuesta>
-  <clientesAgregados>{clientesAgreg}</clientesAgregados>
-  <clientesActualizados>{clientesAct}</clientesActualizados>
-  <bancosAgregados>{bancosAgreg}</bancosAgregados>
-  <bancosActualizados>{bancosAct}</bancosActualizados>
+  <clientes>
+    <creados>{clientesAgreg}</creados>
+    <actualizados>{clientesAct}</actualizados>
+  </clientes>
+  <bancos>
+    <creados>{bancosAgreg}</creados>
+    <actualizados>{bancosAct}</actualizados>
+  </bancos>
 </respuesta>";
-
                 return Content(xmlRespuesta, "application/xml");
             }
             catch (Exception ex)

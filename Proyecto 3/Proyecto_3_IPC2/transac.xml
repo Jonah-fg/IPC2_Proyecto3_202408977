@@ -4,46 +4,79 @@
 		<factura>
 			<numeroFactura>FAC-001</numeroFactura>
 			<NITcliente>123456-7</NITcliente>
-			<fecha>15/03/2026</fecha>
+			<fecha>15/01/2026</fecha>
 			<valor>500.00</valor>
 		</factura>
 		<factura>
 			<numeroFactura>FAC-002</numeroFactura>
 			<NITcliente>123456-7</NITcliente>
-			<fecha>20/03/2026</fecha>
+			<fecha>20/02/2026</fecha>
 			<valor>300.00</valor>
 		</factura>
 		<factura>
 			<numeroFactura>FAC-003</numeroFactura>
 			<NITcliente>987654-3</NITcliente>
-			<fecha>10/03/2026</fecha>
+			<fecha>10/01/2026</fecha>
 			<valor>150.00</valor>
+		</factura>
+		<factura>
+			<numeroFactura>FAC-004</numeroFactura>
+			<NITcliente>555555-5</NITcliente>
+			<fecha>05/03/2026</fecha>
+			<valor>750.00</valor>
+		</factura>
+		<factura>
+			<numeroFactura>FAC-005</numeroFactura>
+			<NITcliente>399399-K</NITcliente>
+			<fecha>28/02/2026</fecha>
+			<valor>1200.00</valor>
 		</factura>
 	</facturas>
 	<pagos>
 		<pago>
 			<codigoBanco>001</codigoBanco>
-			<fecha>18/03/2026</fecha>
+			<fecha>25/01/2026</fecha>
 			<NITcliente>123456-7</NITcliente>
 			<valor>600.00</valor>
 		</pago>
 		<pago>
 			<codigoBanco>002</codigoBanco>
-			<fecha>22/03/2026</fecha>
+			<fecha>15/02/2026</fecha>
 			<NITcliente>987654-3</NITcliente>
 			<valor>200.00</valor>
 		</pago>
 		<pago>
-			<codigoBanco>002</codigoBanco>
-			<fecha>22/03/2026</fecha>
-			<NITcliente>987654-3</NITcliente>
-			<valor>200.00</valor>
+			<codigoBanco>003</codigoBanco>
+			<fecha>10/03/2026</fecha>
+			<NITcliente>555555-5</NITcliente>
+			<valor>750.00</valor>
 		</pago>
+		<pago>
+			<codigoBanco>004</codigoBanco>
+			<fecha>05/03/2026</fecha>
+			<NITcliente>399399-K</NITcliente>
+			<valor>1200.00</valor>
+		</pago>
+		<!-- Pago duplicado del primero -->
 		<pago>
 			<codigoBanco>001</codigoBanco>
-			<fecha>25/03/2026</fecha>
+			<fecha>25/01/2026</fecha>
+			<NITcliente>123456-7</NITcliente>
+			<valor>600.00</valor>
+		</pago>
+		<!-- Pago con NIT inexistente -->
+		<pago>
+			<codigoBanco>001</codigoBanco>
+			<fecha>01/01/2026</fecha>
 			<NITcliente>000000-0</NITcliente>
 			<valor>100.00</valor>
+		</pago>
+		<!-- Pago con banco inexistente -->
+		<pago>
+			<codigoBanco>999</codigoBanco>
+			<fecha>01/01/2026</fecha>
+			<NITcliente>123456-7</NITcliente>
+			<valor>50.00</valor>
 		</pago>
 	</pagos>
 </transacciones>

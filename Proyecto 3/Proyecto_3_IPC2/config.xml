@@ -2,6 +2,11 @@
 <config>
 	<clientes>
 		<cliente>
+			<nit>399399-K</nit>
+			<nombre>Almacén Guatemalteco</nombre>
+			<direccion>Ciudad de Guatemala, Zona 1</direccion>
+		</cliente>
+		<cliente>
 			<nit>123456-7</nit>
 			<nombre>Cliente Uno</nombre>
 			<direccion>Ciudad</direccion>
@@ -11,6 +16,17 @@
 			<nombre>Cliente Dos</nombre>
 			<direccion>Otra Ciudad</direccion>
 		</cliente>
+		<cliente>
+			<nit>555555-5</nit>
+			<nombre>Tienda La Económica</nombre>
+			<direccion>Mixco, Guatemala</direccion>
+		</cliente>
+		<!-- Cliente repetido para probar actualización -->
+		<cliente>
+			<nit>123456-7</nit>
+			<nombre>Cliente Uno Actualizado</nombre>
+			<direccion>Nueva Dirección</direccion>
+		</cliente>
 	</clientes>
 	<bancos>
 		<banco>
@@ -19,7 +35,15 @@
 		</banco>
 		<banco>
 			<codigo>002</codigo>
-			<nombre>Banco BI</nombre>
+			<nombre>Banco G&amp;T</nombre>
+		</banco>
+		<banco>
+			<codigo>003</codigo>
+			<nombre>Banrural</nombre>
+		</banco>
+		<banco>
+			<codigo>004</codigo>
+			<nombre>BAM</nombre>
 		</banco>
 	</bancos>
 </config>

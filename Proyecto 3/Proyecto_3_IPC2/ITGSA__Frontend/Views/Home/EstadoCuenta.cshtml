@@ -51,8 +51,29 @@
             </div>
         </div>
     }
+    <button class="btn btn-danger mt-3" onclick="exportarPDF()">Exportar a PDF</button>
 }
 else
 {
     <p>No se encontraron datos. Asegúrese de haber cargado configuración y transacciones.</p>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        async function exportarPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const elementos = document.querySelectorAll('.card');
+            
+        for (let i =0; i<elementos.length; i++) {
+        const canvas = await html2canvas(elementos[i], { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 20, 20, 550, 0);
+        }
+        pdf.save('EstadoCuenta.pdf');
+        }
+    </script>
 }

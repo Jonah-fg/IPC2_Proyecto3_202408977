@@ -25,6 +25,7 @@
 {
     <h3>Mes elegido: @Model.MesSeleccionado.ToString("MMMM/yyyy")</h3>
     <canvas id="graficaIngresos" width="400" height="200"></canvas>
+    <button class="btn btn-danger mt-3" onclick="exportarPDF()">Exportar a PDF</button>
 }
 else
 {
@@ -32,6 +33,8 @@ else
 }
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         @if (Model.Meses != null && Model.Meses.Any())
@@ -62,6 +65,15 @@ else
                 }
             });
             </text>
+        }
+
+        async function exportarPDF() {
+        const { jsPDF } =window.jspdf;
+        const pdf=new jsPDF('landscape', 'pt', 'a4');
+        const canvas =await html2canvas(document.querySelector('#graficaIngresos'), { scale: 2 });
+        const imgData =canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 20, 20, 780,0);
+        pdf.save('Ingresos.pdf');
         }
     </script>
 }hg
